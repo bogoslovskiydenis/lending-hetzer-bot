@@ -11,7 +11,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@telegram-apps/sdk": "^1.0.0",
+    "@telegram-apps/sdk": "^2.0.0",
     "nuxt": "^3.13.0",
     "vue": "latest"
   },
