@@ -11,15 +11,12 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { init, miniApp, viewport, themeParams } from '@telegram-apps/sdk'
 
 const redirectUrl = 'https://hertzbet.com/'
 
-onMounted(async () => {
+onMounted(() => {
   // Проверяем, запущено ли приложение в Telegram
-  const isTelegramEnv = window.Telegram?.WebApp
-  
-  if (!isTelegramEnv) {
+  if (!window.Telegram?.WebApp) {
     console.log('⚠️ Not running in Telegram environment')
     // Редирект в любом случае
     setTimeout(() => {
@@ -28,101 +25,55 @@ onMounted(async () => {
     return
   }
 
-  try {
-    console.log('🚀 Telegram environment detected!')
-    
-    // 1. Инициализируем SDK
-    init()
-    console.log('✅ SDK initialized')
-
-    // 2. Проверяем доступность miniApp
-    if (miniApp.mount.isAvailable()) {
-      miniApp.mount()
-      miniApp.ready()
-      console.log('✅ Mini App mounted and ready')
-    }
-
-    // 3. Настраиваем Theme (цвета)
-    if (themeParams.mount.isAvailable()) {
-      themeParams.mount()
-    }
-
-    // 4. МОНТИРУЕМ VIEWPORT (обязательно!)
-    if (viewport.mount.isAvailable()) {
-      viewport.mount()
-      console.log('📱 Viewport mounted')
-
-      // 5. BIND CSS VARIABLES (для responsive)
-      if (viewport.bindCssVars.isAvailable()) {
-        viewport.bindCssVars()
-        console.log('🎯 CSS vars bound')
-      }
-
-      // 6. ⭐ EXPAND - ОТКРЫВАЕМ НА ПОЛНЫЙ ЭКРАН!
-      if (viewport.expand.isAvailable()) {
-        viewport.expand()
-        console.log('🔥 VIEWPORT EXPANDED!')
-
-        // 7. 🚀 FULLSCREEN MODE - для Telegram Desktop!
-        if (viewport.requestFullscreen && viewport.requestFullscreen.isAvailable()) {
-          viewport.requestFullscreen()
-            .then(() => {
-              console.log('🎯 FULLSCREEN MODE ACTIVATED!')
-            })
-            .catch((err) => {
-              console.log('⚠️ Fullscreen not supported or denied:', err)
-            })
-        }
-      } else {
-        // Фоллбэк на старый API
-        console.log('⚠️ Using fallback expand method')
-        window.Telegram.WebApp.expand()
-        
-        // Пробуем fullscreen через старый API
-        if (window.Telegram.WebApp.requestFullscreen) {
-          window.Telegram.WebApp.requestFullscreen()
-          console.log('🎯 Fullscreen requested via fallback')
-        }
-      }
-    }
-
-    // 8. Настраиваем цвета Mini App
-    if (miniApp.setHeaderColor.isAvailable()) {
-      miniApp.setHeaderColor('#1a1a2e')
-    } else {
-      window.Telegram.WebApp.setHeaderColor?.('#1a1a2e')
-    }
-    
-    if (miniApp.setBackgroundColor.isAvailable()) {
-      miniApp.setBackgroundColor('#1a1a2e')
-    } else {
-      window.Telegram.WebApp.setBackgroundColor?.('#1a1a2e')
-    }
-
-    console.log('✅ Telegram Mini App fully initialized!')
-
-  } catch (error) {
-    console.error('❌ Telegram Mini App initialization error:', error)
-    
-    // Фоллбэк на старый SDK при ошибке
-    console.log('🔄 Trying fallback initialization...')
-    try {
-      window.Telegram.WebApp.ready()
-      window.Telegram.WebApp.expand()
-      console.log('✅ Fallback expand successful')
-      
-      // Пробуем fullscreen
-      if (window.Telegram.WebApp.requestFullscreen) {
-        window.Telegram.WebApp.requestFullscreen()
-        console.log('🎯 Fallback fullscreen requested')
-      }
-    } catch (fallbackError) {
-      console.error('❌ Fallback also failed:', fallbackError)
-    }
+  const tg = window.Telegram.WebApp
+  
+  console.log('🚀 Telegram environment detected!')
+  console.log('📱 Platform:', tg.platform)
+  console.log('📱 Version:', tg.version)
+  console.log('📱 Is Expanded:', tg.isExpanded)
+  
+  // 1. Готовность приложения
+  tg.ready()
+  console.log('✅ WebApp ready')
+  
+  // 2. Разворачиваем на весь экран
+  tg.expand()
+  console.log('🔥 Expand called')
+  
+  // Ждем немного и проверяем статус
+  setTimeout(() => {
+    console.log('📏 After expand - isExpanded:', tg.isExpanded)
+    console.log('📐 Viewport height:', tg.viewportHeight)
+    console.log('📐 Viewport stable height:', tg.viewportStableHeight)
+  }, 100)
+  
+  // 3. Устанавливаем цвета
+  if (tg.setHeaderColor) {
+    tg.setHeaderColor('#1a1a2e')
+  }
+  if (tg.setBackgroundColor) {
+    tg.setBackgroundColor('#1a1a2e')
+  }
+  
+  // 4. Пробуем requestFullscreen если доступно
+  if (typeof tg.requestFullscreen === 'function') {
+    tg.requestFullscreen()
+    console.log('🎯 Fullscreen requested')
+  } else {
+    console.log('⚠️ requestFullscreen not available')
+  }
+  
+  // 5. Блокируем вертикальные свайпы если доступно
+  if (typeof tg.disableVerticalSwipes === 'function') {
+    tg.disableVerticalSwipes()
+    console.log('🔒 Vertical swipes disabled')
   }
 
-  // Редирект сразу после инициализации
+  console.log('✅ Telegram Mini App initialized!')
+
+  // Редирект
   setTimeout(() => {
+    console.log('🔄 Redirecting...')
     window.location.href = redirectUrl
   }, 1000)
 })

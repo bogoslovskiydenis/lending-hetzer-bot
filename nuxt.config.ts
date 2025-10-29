@@ -10,13 +10,15 @@ export default defineNuxtConfig({
       title: 'HertzBet',
       meta: [
         { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' },
-        { name: 'format-detection', content: 'telephone=no' }
+        { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover' },
+        { name: 'format-detection', content: 'telephone=no' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'mobile-web-app-capable', content: 'yes' }
       ],
       script: [
         {
           src: 'https://telegram.org/js/telegram-web-app.js',
-          defer: true
+          tagPosition: 'head'
         }
       ]
     }
