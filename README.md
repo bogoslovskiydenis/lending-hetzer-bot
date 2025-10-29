@@ -66,3 +66,4 @@ npm run generate
 Это создаст статические файлы в папке `.output/public`.
 
 # lending-hetzer-bot
+# lending-hetzer-bot
