@@ -104,5 +104,11 @@ interface Window {
   Telegram?: {
     WebApp: TelegramWebApp
   }
+  TelegramWebviewProxy?: {
+    postEvent: (eventType: string, eventData: string) => void
+  }
+  external?: {
+    notify: (data: string) => void
+  }
 }
 

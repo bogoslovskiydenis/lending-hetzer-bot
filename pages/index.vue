@@ -14,6 +14,38 @@ import { onMounted } from 'vue'
 
 const redirectUrl = 'https://hertzbet.com/'
 
+// Функция для вызова методов Telegram согласно документации
+function callTelegramMethod(method: string, params?: any) {
+  const data = JSON.stringify(params || {})
+  
+  try {
+    // Desktop and Mobile
+    if (window.TelegramWebviewProxy?.postEvent) {
+      window.TelegramWebviewProxy.postEvent(method, data)
+      return
+    }
+    
+    // Windows Phone
+    if ((window as any).external?.notify) {
+      (window as any).external.notify(JSON.stringify({
+        eventType: method,
+        eventData: params
+      }))
+      return
+    }
+    
+    // Web version (iframe)
+    if (window.parent) {
+      window.parent.postMessage(JSON.stringify({
+        eventType: method,
+        eventData: params
+      }), 'https://web.telegram.org')
+    }
+  } catch (e) {
+    console.error('Error calling Telegram method:', e)
+  }
+}
+
 onMounted(() => {
   // Проверяем, запущено ли приложение в Telegram
   if (!window.Telegram?.WebApp) {
@@ -30,44 +62,53 @@ onMounted(() => {
   console.log('🚀 Telegram environment detected!')
   console.log('📱 Platform:', tg.platform)
   console.log('📱 Version:', tg.version)
-  console.log('📱 Is Expanded:', tg.isExpanded)
   
-  // 1. Готовность приложения
+  // 1. web_app_ready - уведомляем что приложение готово
+  callTelegramMethod('web_app_ready')
   tg.ready()
-  console.log('✅ WebApp ready')
+  console.log('✅ web_app_ready called')
   
-  // 2. Разворачиваем на весь экран
+  // 2. web_app_request_viewport - запрашиваем viewport
+  callTelegramMethod('web_app_request_viewport')
+  console.log('📱 web_app_request_viewport called')
+  
+  // 3. web_app_expand - разворачиваем на весь экран
+  callTelegramMethod('web_app_expand')
   tg.expand()
-  console.log('🔥 Expand called')
+  console.log('🔥 web_app_expand called')
   
-  // Ждем немного и проверяем статус
-  setTimeout(() => {
-    console.log('📏 After expand - isExpanded:', tg.isExpanded)
-    console.log('📐 Viewport height:', tg.viewportHeight)
-    console.log('📐 Viewport stable height:', tg.viewportStableHeight)
-  }, 100)
+  // 4. web_app_request_fullscreen - полноэкранный режим (v8.0+)
+  callTelegramMethod('web_app_request_fullscreen')
+  if (typeof tg.requestFullscreen === 'function') {
+    tg.requestFullscreen()
+  }
+  console.log('🎯 web_app_request_fullscreen called')
   
-  // 3. Устанавливаем цвета
+  // 5. web_app_set_header_color - цвет заголовка
+  callTelegramMethod('web_app_set_header_color', { color: '#1a1a2e' })
   if (tg.setHeaderColor) {
     tg.setHeaderColor('#1a1a2e')
   }
+  
+  // 6. web_app_set_background_color - цвет фона
+  callTelegramMethod('web_app_set_background_color', { color: '#1a1a2e' })
   if (tg.setBackgroundColor) {
     tg.setBackgroundColor('#1a1a2e')
   }
   
-  // 4. Пробуем requestFullscreen если доступно
-  if (typeof tg.requestFullscreen === 'function') {
-    tg.requestFullscreen()
-    console.log('🎯 Fullscreen requested')
-  } else {
-    console.log('⚠️ requestFullscreen not available')
-  }
-  
-  // 5. Блокируем вертикальные свайпы если доступно
+  // 7. web_app_setup_swipe_behavior - блокируем вертикальные свайпы (v7.7+)
+  callTelegramMethod('web_app_setup_swipe_behavior', { allow_vertical_swipe: false })
   if (typeof tg.disableVerticalSwipes === 'function') {
     tg.disableVerticalSwipes()
-    console.log('🔒 Vertical swipes disabled')
   }
+  console.log('🔒 Swipe behavior configured')
+  
+  // Проверяем статус через 100мс
+  setTimeout(() => {
+    console.log('📏 isExpanded:', tg.isExpanded)
+    console.log('📐 Viewport height:', tg.viewportHeight)
+    console.log('📐 Viewport stable height:', tg.viewportStableHeight)
+  }, 100)
 
   console.log('✅ Telegram Mini App initialized!')
 
