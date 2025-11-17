@@ -58,6 +58,8 @@ onMounted(() => {
   }
 
   const tg = window.Telegram.WebApp
+  const platform = tg.platform?.toLowerCase() || ''
+  const isIOS = platform.includes('ios')
   
   console.log('🚀 Telegram environment detected!')
   console.log('📱 Platform:', tg.platform)
@@ -78,11 +80,15 @@ onMounted(() => {
   console.log('🔥 web_app_expand called')
   
   // 4. web_app_request_fullscreen - полноэкранный режим (v8.0+)
-  callTelegramMethod('web_app_request_fullscreen')
-  if (typeof tg.requestFullscreen === 'function') {
-    tg.requestFullscreen()
+  if (!isIOS) {
+    callTelegramMethod('web_app_request_fullscreen')
+    if (typeof tg.requestFullscreen === 'function') {
+      tg.requestFullscreen()
+    }
+    console.log('🎯 web_app_request_fullscreen called')
+  } else {
+    console.log('⏭️ Skip fullscreen on iOS to keep top buttons clickable')
   }
-  console.log('🎯 web_app_request_fullscreen called')
   
   // 5. web_app_set_header_color - цвет заголовка
   callTelegramMethod('web_app_set_header_color', { color: '#1a1a2e' })
