@@ -7,18 +7,13 @@
       </div>
     </div>
 
-    <div
-      data-id="eeCYTdBwXsPY"
-      class="livechat_button"
+    <button
+      type="button"
+      class="livechat-button"
+      @click="openLiveChat"
     >
-      <a
-        href="https://www.livechat.com/customer-service/?utm_source=chat_button&utm_medium=referral&utm_campaign=lc_18565707"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        5 customer service tips from LiveChat
-      </a>
-    </div>
+      5 customer service tips from LiveChat
+    </button>
   </div>
 </template>
 
@@ -55,6 +50,16 @@ function callTelegramMethod(method: string, params?: any) {
   } catch (e) {
     console.error('Error calling Telegram method:', e)
   }
+}
+
+function openLiveChat() {
+  const w = window as any
+  if (w.LiveChatWidget && typeof w.LiveChatWidget.call === 'function') {
+    w.LiveChatWidget.call('maximize')
+    return
+  }
+
+  window.location.href = 'https://www.livechat.com/chat-with/18565707/'
 }
 
 onMounted(() => {
@@ -125,6 +130,25 @@ onMounted(() => {
 
   console.log('✅ Telegram Mini App initialized!')
 })
+
+onMounted(() => {
+  const w = window as any
+  w.__lc = w.__lc || {}
+  w.__lc.license = 18565707
+  w.__lc.integration_name = 'manual_channels'
+  w.__lc.product_name = 'livechat'
+
+  if (document.querySelector('script[data-livechat-tracking]')) {
+    return
+  }
+
+  const s = document.createElement('script')
+  s.async = true
+  s.type = 'text/javascript'
+  s.src = 'https://cdn.livechatinc.com/tracking.js'
+  s.dataset.livechatTracking = 'true'
+  document.head.appendChild(s)
+})
 </script>
 
 <style scoped>
@@ -139,30 +163,6 @@ onMounted(() => {
   top: 0;
   left: 0;
   overflow: hidden;
-}
-
-.livechat_button {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 10;
-  font-family: inherit;
-}
-
-.livechat_button a {
-  display: inline-block;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: #00d4ff;
-  color: #0b1020;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-}
-
-.livechat_button a:hover {
-  background: #00b4e6;
 }
 
 .loader-wrapper {
@@ -228,6 +228,26 @@ onMounted(() => {
     radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, rgba(0, 102, 255, 0.1) 0%, transparent 50%);
   animation: floatingGradient 5s ease-in-out infinite;
+}
+
+.livechat-button {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  background: #00d4ff;
+  color: #0b1020;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.livechat-button:hover {
+  background: #00b4e6;
 }
 
 @keyframes floatingGradient {
