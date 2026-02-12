@@ -53,12 +53,24 @@ function callTelegramMethod(method: string, params?: any) {
 }
 
 function openLiveChat() {
+  console.log('🔵 LiveChat button clicked')
   const w = window as any
+  
+  console.log('🔍 LiveChatWidget exists:', !!w.LiveChatWidget)
+  console.log('🔍 LiveChatWidget.call exists:', typeof w.LiveChatWidget?.call)
+  
   if (w.LiveChatWidget && typeof w.LiveChatWidget.call === 'function') {
-    w.LiveChatWidget.call('maximize')
+    console.log('✅ Opening LiveChat widget...')
+    try {
+      w.LiveChatWidget.call('maximize')
+      console.log('✅ LiveChat maximize called')
+    } catch (e) {
+      console.error('❌ Error calling maximize:', e)
+    }
     return
   }
 
+  console.log('⚠️ LiveChat widget not found, redirecting...')
   window.location.href = 'https://www.livechat.com/chat-with/18565707/'
 }
 
@@ -93,11 +105,15 @@ onMounted(() => {
   
   // 4. web_app_request_fullscreen - полноэкранный режим (v8.0+)
   if (!isIOS) {
-    callTelegramMethod('web_app_request_fullscreen')
-    if (typeof tg.requestFullscreen === 'function') {
-      tg.requestFullscreen()
+    try {
+      callTelegramMethod('web_app_request_fullscreen')
+      if (typeof tg.requestFullscreen === 'function') {
+        tg.requestFullscreen()
+      }
+      console.log('🎯 web_app_request_fullscreen called')
+    } catch (e) {
+      console.log('⚠️ requestFullscreen not supported in this version')
     }
-    console.log('🎯 web_app_request_fullscreen called')
   } else {
     console.log('⏭️ Skip fullscreen on iOS to keep top buttons clickable')
   }
@@ -131,24 +147,6 @@ onMounted(() => {
   console.log('✅ Telegram Mini App initialized!')
 })
 
-onMounted(() => {
-  const w = window as any
-  w.__lc = w.__lc || {}
-  w.__lc.license = 18565707
-  w.__lc.integration_name = 'manual_channels'
-  w.__lc.product_name = 'livechat'
-
-  if (document.querySelector('script[data-livechat-tracking]')) {
-    return
-  }
-
-  const s = document.createElement('script')
-  s.async = true
-  s.type = 'text/javascript'
-  s.src = 'https://cdn.livechatinc.com/tracking.js'
-  s.dataset.livechatTracking = 'true'
-  document.head.appendChild(s)
-})
 </script>
 
 <style scoped>
@@ -170,6 +168,8 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .loader {
@@ -228,6 +228,7 @@ onMounted(() => {
     radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, rgba(0, 102, 255, 0.1) 0%, transparent 50%);
   animation: floatingGradient 5s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .livechat-button {

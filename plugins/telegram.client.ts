@@ -46,9 +46,13 @@ export default defineNuxtPlugin(() => {
     callTelegramMethod('web_app_expand')
     tg.expand()
     
-    callTelegramMethod('web_app_request_fullscreen')
-    if (typeof tg.requestFullscreen === 'function') {
-      tg.requestFullscreen()
+    try {
+      callTelegramMethod('web_app_request_fullscreen')
+      if (typeof tg.requestFullscreen === 'function') {
+        tg.requestFullscreen()
+      }
+    } catch (e) {
+      console.log('⚠️ [Plugin] requestFullscreen not supported in this version')
     }
     
     callTelegramMethod('web_app_setup_swipe_behavior', { allow_vertical_swipe: false })
