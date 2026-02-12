@@ -6,13 +6,24 @@
         <div class="logo">HertzBet</div>
       </div>
     </div>
+
+    <div
+      data-id="eeCYTdBwXsPY"
+      class="livechat_button"
+    >
+      <a
+        href="https://www.livechat.com/customer-service/?utm_source=chat_button&utm_medium=referral&utm_campaign=lc_18565707"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        5 customer service tips from LiveChat
+      </a>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-
-const redirectUrl = 'https://hertzbet.com/'
 
 // Функция для вызова методов Telegram согласно документации
 function callTelegramMethod(method: string, params?: any) {
@@ -50,10 +61,6 @@ onMounted(() => {
   // Проверяем, запущено ли приложение в Telegram
   if (!window.Telegram?.WebApp) {
     console.log('⚠️ Not running in Telegram environment')
-    // Редирект в любом случае
-    setTimeout(() => {
-      window.location.href = redirectUrl
-    }, 1000)
     return
   }
 
@@ -117,12 +124,6 @@ onMounted(() => {
   }, 100)
 
   console.log('✅ Telegram Mini App initialized!')
-
-  // Редирект
-  setTimeout(() => {
-    console.log('🔄 Redirecting...')
-    window.location.href = redirectUrl
-  }, 1000)
 })
 </script>
 
@@ -138,6 +139,30 @@ onMounted(() => {
   top: 0;
   left: 0;
   overflow: hidden;
+}
+
+.livechat_button {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  font-family: inherit;
+}
+
+.livechat_button a {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #00d4ff;
+  color: #0b1020;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.livechat_button a:hover {
+  background: #00b4e6;
 }
 
 .loader-wrapper {
