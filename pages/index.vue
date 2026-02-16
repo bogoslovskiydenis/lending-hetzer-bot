@@ -14,15 +14,6 @@
         <div class="field-value">{{ tgUserName ? `@${tgUserName}` : '—' }}</div>
       </div>
     </div>
-
-    <button
-      v-if="isTelegram"
-      type="button"
-      class="livechat-button"
-      @click="openLiveChat"
-    >
-      5 customer service tips from LiveChat
-    </button>
   </div>
 </template>
 
@@ -32,7 +23,6 @@ import { onMounted, ref } from 'vue'
 const tgDisplayName = ref('')
 const tgUserName = ref('')
 const tgUserId = ref<number | string>('')
-const isTelegram = ref(!!(typeof window !== 'undefined' && window.Telegram?.WebApp))
 
 // Функция для вызова методов Telegram согласно документации
 function callTelegramMethod(method: string, params?: any) {
@@ -66,31 +56,8 @@ function callTelegramMethod(method: string, params?: any) {
   }
 }
 
-function openLiveChat() {
-  console.log('🔵 LiveChat button clicked')
-  const w = window as any
-  
-  console.log('🔍 LiveChatWidget exists:', !!w.LiveChatWidget)
-  console.log('🔍 LiveChatWidget.call exists:', typeof w.LiveChatWidget?.call)
-  
-  if (w.LiveChatWidget && typeof w.LiveChatWidget.call === 'function') {
-    console.log('✅ Opening LiveChat widget...')
-    try {
-      w.LiveChatWidget.call('maximize')
-      console.log('✅ LiveChat maximize called')
-    } catch (e) {
-      console.error('❌ Error calling maximize:', e)
-    }
-    return
-  }
-
-  console.log('⚠️ LiveChat widget not found, redirecting...')
-  window.location.href = 'https://www.livechat.com/chat-with/18565707/'
-}
-
 onMounted(() => {
   const tg = window.Telegram?.WebApp
-  isTelegram.value = !!tg
   if (tg?.initDataUnsafe?.user) {
     const u = tg.initDataUnsafe.user
     tgUserId.value = u.id
@@ -248,26 +215,6 @@ onMounted(() => {
 .tg-username {
   font-size: 0.85rem;
   color: rgba(0, 212, 255, 0.9);
-}
-
-.livechat-button {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 10;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: none;
-  background: #00d4ff;
-  color: #0b1020;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-}
-
-.livechat-button:hover {
-  background: #00b4e6;
 }
 
 @keyframes floatingGradient {
