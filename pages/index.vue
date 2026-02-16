@@ -1,5 +1,9 @@
 <template>
   <div class="fullscreen-container">
+    <div v-if="tgUserName || tgDisplayName" class="tg-user-bar">
+      <span v-if="tgDisplayName" class="tg-name">{{ tgDisplayName }}</span>
+      <span v-if="tgUserName" class="tg-username">@{{ tgUserName }}</span>
+    </div>
     <div class="loader-wrapper">
       <div class="loader">
         <div class="spinner"></div>
@@ -18,7 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+
+const tgDisplayName = ref('')
+const tgUserName = ref('')
 
 // Функция для вызова методов Telegram согласно документации
 function callTelegramMethod(method: string, params?: any) {
@@ -75,13 +82,17 @@ function openLiveChat() {
 }
 
 onMounted(() => {
-  // Проверяем, запущено ли приложение в Telegram
-  if (!window.Telegram?.WebApp) {
+  const tg = window.Telegram?.WebApp
+  if (tg?.initDataUnsafe?.user) {
+    const u = tg.initDataUnsafe.user
+    tgDisplayName.value = [u.first_name, u.last_name].filter(Boolean).join(' ')
+    if (u.username) tgUserName.value = u.username
+  }
+
+  if (!tg) {
     console.log('⚠️ Not running in Telegram environment')
     return
   }
-
-  const tg = window.Telegram.WebApp
   const platform = tg.platform?.toLowerCase() || ''
   const isIOS = platform.includes('ios')
   
@@ -229,6 +240,27 @@ onMounted(() => {
     radial-gradient(circle at 80% 70%, rgba(0, 102, 255, 0.1) 0%, transparent 50%);
   animation: floatingGradient 5s ease-in-out infinite;
   pointer-events: none;
+}
+
+.tg-user-bar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tg-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e8e8e8;
+}
+.tg-username {
+  font-size: 0.85rem;
+  color: rgba(0, 212, 255, 0.9);
 }
 
 .livechat-button {
