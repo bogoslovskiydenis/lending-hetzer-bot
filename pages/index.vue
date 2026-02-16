@@ -4,14 +4,19 @@
       <span v-if="tgDisplayName" class="tg-name">{{ tgDisplayName }}</span>
       <span v-if="tgUserName" class="tg-username">@{{ tgUserName }}</span>
     </div>
-    <div class="loader-wrapper">
-      <div class="loader">
-        <div class="spinner"></div>
-        <div class="logo">HertzBet</div>
+    <div class="fields-wrapper">
+      <div class="field">
+        <label class="field-label">Telegram ID</label>
+        <div class="field-value">{{ tgUserId || '—' }}</div>
+      </div>
+      <div class="field">
+        <label class="field-label">Username</label>
+        <div class="field-value">{{ tgUserName ? `@${tgUserName}` : '—' }}</div>
       </div>
     </div>
 
     <button
+      v-if="isTelegram"
       type="button"
       class="livechat-button"
       @click="openLiveChat"
@@ -26,6 +31,8 @@ import { onMounted, ref } from 'vue'
 
 const tgDisplayName = ref('')
 const tgUserName = ref('')
+const tgUserId = ref<number | string>('')
+const isTelegram = ref(!!(typeof window !== 'undefined' && window.Telegram?.WebApp))
 
 // Функция для вызова методов Telegram согласно документации
 function callTelegramMethod(method: string, params?: any) {
@@ -83,8 +90,10 @@ function openLiveChat() {
 
 onMounted(() => {
   const tg = window.Telegram?.WebApp
+  isTelegram.value = !!tg
   if (tg?.initDataUnsafe?.user) {
     const u = tg.initDataUnsafe.user
+    tgUserId.value = u.id
     tgDisplayName.value = [u.first_name, u.last_name].filter(Boolean).join(' ')
     if (u.username) tgUserName.value = u.username
   }
@@ -174,57 +183,35 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.loader-wrapper {
+.fields-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2rem;
+  gap: 1.25rem;
+  min-width: 280px;
   position: relative;
   z-index: 1;
 }
 
-.loader {
+.field {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
+  gap: 0.35rem;
 }
 
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #00d4ff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.field-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.logo {
-  font-size: 2.5rem;
-  font-weight: bold;
-  background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: pulse 2s ease-in-out infinite;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
+.field-value {
+  font-size: 1.1rem;
+  color: #fff;
+  padding: 0.6rem 0.85rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 8px;
+  font-family: ui-monospace, monospace;
 }
 
 /* Дополнительные эффекты */

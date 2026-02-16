@@ -1,9 +1,6 @@
 <template>
   <div>
     <NuxtPage />
-    <noscript>
-      <a href="https://www.livechat.com/chat-with/18565707/" rel="nofollow">Chat with us</a>, powered by <a href="https://www.livechat.com/?welcome" rel="noopener nofollow" target="_blank">LiveChat</a>
-    </noscript>
   </div>
 </template>
 
@@ -11,19 +8,18 @@
 import { onMounted } from 'vue'
 
 onMounted(() => {
-  console.log('🟢 Initializing LiveChat...')
-  
+  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return
+
   const w = window as any
   w.__lc = w.__lc || {}
   w.__lc.license = 18565707
   w.__lc.integration_name = 'manual_channels'
   w.__lc.product_name = 'livechat'
-  
+
   ;(function(n: any, t: any, c: any) {
     function i(nArg: any) {
       return e._h ? e._h.apply(null, nArg) : e._q.push(nArg)
     }
-    
     const e: any = {
       _q: [],
       _h: null,
@@ -37,25 +33,16 @@ onMounted(() => {
       },
       call() { i(['call', c.call(arguments)]) },
       init() {
-        console.log('📦 Creating LiveChat tracking script...')
         const script = t.createElement('script')
         script.async = true
         script.type = 'text/javascript'
         script.src = 'https://cdn.livechatinc.com/tracking.js'
-        script.onload = () => console.log('✅ LiveChat tracking.js loaded')
-        script.onerror = (err: any) => console.error('❌ Failed to load LiveChat tracking.js', err)
         t.head.appendChild(script)
-        console.log('📌 Script appended to head')
       }
     }
-    
-    if (!n.__lc.asyncInit) {
-      e.init()
-    }
+    if (!n.__lc.asyncInit) e.init()
     n.LiveChatWidget = n.LiveChatWidget || e
   })(window, document, [].slice)
-  
-  console.log('✅ LiveChat widget object created')
 })
 </script>
 
